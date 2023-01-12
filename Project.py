@@ -45,7 +45,7 @@ def start_game():  # Starting a game process
     global GAMEMODE, s, tb, score1, sprite_group_game, tm
     sprite_group_game = pygame.sprite.Group()
     GAMEMODE = 1
-    tb = create_tb(to_coef(60) * 2)
+    tb = create_tb(to_coef(60) * 2, 20)
     s = 0
     score1 = 0
     for _ in range(objects):
@@ -100,14 +100,14 @@ def objects_count(n):  # Change a objects in game
             ocl[oc - 1].change('#')
 
 
-def create_tb(siz2):  # Create a game process
-    tb1 = []
-    for _ in range(total):
+def create_tb(siz2, fc=1):  # Create a game process
+    tb1 = tb
+    for _ in range(fc):
         while True:
             x, y = randint(100, X - 100), randint(300, Y - 100)
             fl = True
             for xy in tb1:
-                if ((xy[0] - x) ** 2 + (xy[1] - y) ** 2) ** 0.5 <= siz2:
+                if (xy[0] - x) ** 2 + (xy[1] - y) ** 2 <= siz2 ** 2:
                     fl = False
                     break
             if fl:
@@ -280,6 +280,8 @@ class Target(pygame.sprite.Sprite):
             if (self.x - event.pos[0]) ** 2 + (self.y - event.pos[1]) ** 2 <= self.size ** 2:
                 self.effect.play()
                 score1 += 1
+                global tb
+                tb = create_tb(to_coef(60) * 2)
                 if score1 <= total - objects:
                     a = Target(self.size)
                     sprite_group_game.add(a)
