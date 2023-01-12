@@ -45,11 +45,11 @@ def start_game():  # Starting a game process
     global GAMEMODE, s, tb, score1, sprite_group_game, tm
     sprite_group_game = pygame.sprite.Group()
     GAMEMODE = 1
-    tb = create_tb(to_coef(60) * 2, 20)
+    tb = create_tb(to_coef(80) * 2, 20)
     s = 0
     score1 = 0
     for _ in range(objects):
-        a = Target(to_coef(60))
+        a = Target(to_coef(80))
         sprite_group_game.add(a)
     tm = 0
     pygame.mouse.set_pos(to_center(1, 1))
@@ -58,6 +58,7 @@ def start_game():  # Starting a game process
 
 def go_menu():  # Return to menu
     global GAMEMODE, total
+    stop_btn.change('stop.png')
     GAMEMODE = 0
     total = 50
     pygame.mixer.music.unpause()
@@ -121,7 +122,7 @@ class Cursor:
     def __init__(self, cur, size):
         pygame.mouse.set_visible(False)
         self.cursor = pygame.transform.scale(load_image(cur), size)
-        self.x, self.y = map(lambda p: p // 2, size)
+        self.x, self.y = map(lambda p: p // 4, size)
 
     def update(self, scr, pos_x, pos_y):
         scr.blit(self.cursor, (pos_x - self.x, pos_y - self.y))
@@ -272,15 +273,20 @@ class Target(pygame.sprite.Sprite):
         x1, y1 = tb.pop(0)
         self.x, self.y = x1, y1
         self.rect.center = (self.x, self.y)
+        self.s = s
 
     def update(self):
         """Update an object"""
-        global is_press, score1
+        global is_press, score1, tb
+        if s == self.s + 10:
+            tb = create_tb(to_coef(60) * 2)
+            a = Target(self.size)
+            sprite_group_game.add(a)
+            self.kill()
         if event.type == pygame.MOUSEBUTTONDOWN and not is_press:
             if (self.x - event.pos[0]) ** 2 + (self.y - event.pos[1]) ** 2 <= self.size ** 2:
                 self.effect.play()
                 score1 += 1
-                global tb
                 tb = create_tb(to_coef(60) * 2)
                 if score1 <= total - objects:
                     a = Target(self.size)
@@ -385,15 +391,15 @@ if __name__ == '__main__':  # Run a game
     surf_info.blit(pygame.transform.scale(load_image('LOGO.png'), to_coef(256, 256)), (shs[0] // 2 - to_coef(128), 20))
     txa = fonth.render('AIM TRAINER', True, (255, 255, 255))
     surf_info.blit(txa, (to_center(txa.get_size()[0]) - to_coef(200), to_coef(300)))
-    txav = fonth.render('Version: 0.1.0', True, (255, 255, 255))
+    fontv = pygame.font.Font(None, to_coef(100))
+    txav = fontv.render('Version: 0.2.0', True, (255, 255, 255))
     surf_info.blit(txav, to_coef(50, 400))
-    fontm = pygame.font.Font(None, to_coef(42))
-    y_res = 500
-    with open('data/LICENSE') as lic_file:
-        for ln in lic_file.read().split('\n'):
-            txh = fontm.render(ln, True, (255, 255, 255))
-            surf_info.blit(txh, (to_coef(50), to_coef(y_res)))
-            y_res += 40
+    txal = fontv.render('License: GNU LESSER GENERAL PUBLIC LICENSE', True, (255, 255, 255))
+    surf_info.blit(txal, to_coef(50, 500))
+    txal = fontv.render('Copyright (C) 2023', True, (255, 255, 255))
+    surf_info.blit(txal, to_coef(50, 600))
+    txal = fontv.render('Vladimir Varenik & Dilyara Ismagilova', True, (255, 255, 255))
+    surf_info.blit(txal, to_coef(50, 700))
     surf_info_sprite = pygame.sprite.Sprite()
     surf_info_sprite.image = surf_info
     surf_info_sprite.rect = to_center(*shs)
