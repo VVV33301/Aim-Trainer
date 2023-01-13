@@ -45,7 +45,7 @@ def start_game():  # Starting a game process
     global GAMEMODE, s, tb, score1, sprite_group_game, tm
     sprite_group_game = pygame.sprite.Group()
     GAMEMODE = 1
-    tb = create_tb(to_coef(80) * 2, 20)
+    tb = []
     s = 0
     score1 = 0
     for _ in range(objects):
@@ -101,20 +101,17 @@ def objects_count(n):  # Change a objects in game
             ocl[oc - 1].change('#')
 
 
-def create_tb(siz2, fc=1):  # Create a game process
-    tb1 = tb
-    for _ in range(fc):
-        while True:
-            x, y = randint(100, X - 100), randint(300, Y - 100)
-            fl = True
-            for xy in tb1:
-                if (xy[0] - x) ** 2 + (xy[1] - y) ** 2 <= siz2 ** 2:
-                    fl = False
-                    break
-            if fl:
-                tb1.append((x, y))
+def create_tb(siz2):  # Create a game process
+    while True:
+        x1, y1 = randint(100, X - 100), randint(to_coef(300), Y - 100)
+        fl = True
+        for xy in tb:
+            if (xy[0] - x1) ** 2 + (xy[1] - y1) ** 2 <= siz2 ** 2:
+                fl = False
                 break
-    return tb1
+        if fl:
+            tb.append((x1, y1))
+            return x1, y1
 
 
 class Cursor:
@@ -270,24 +267,18 @@ class Target(pygame.sprite.Sprite):
         self.image.convert_alpha()
         pygame.draw.circle(self.image, pygame.Color('white'), (size, size), size)
         self.rect = self.image.get_rect()
-        x1, y1 = tb.pop(0)
-        self.x, self.y = x1, y1
+        self.x, self.y = create_tb(sz)
         self.rect.center = (self.x, self.y)
         self.s = s
 
     def update(self):
         """Update an object"""
         global is_press, score1, tb
-        if s == self.s + 10:
-            tb = create_tb(to_coef(60) * 2)
-            a = Target(self.size)
-            sprite_group_game.add(a)
-            self.kill()
         if event.type == pygame.MOUSEBUTTONDOWN and not is_press:
             if (self.x - event.pos[0]) ** 2 + (self.y - event.pos[1]) ** 2 <= self.size ** 2:
                 self.effect.play()
                 score1 += 1
-                tb = create_tb(to_coef(60) * 2)
+                del tb[tb.index((self.x, self.y))]
                 if score1 <= total - objects:
                     a = Target(self.size)
                     sprite_group_game.add(a)
@@ -444,9 +435,13 @@ if __name__ == '__main__':  # Run a game
                 elif event.key == pygame.K_F1:
                     GAMEMODE = 2 if GAMEMODE != 2 else 0
                 elif event.key == pygame.K_F2:
-                    pygame.mixer.music.set_volume(0.1)
+                    mv = pygame.mixer.music.get_volume()
+                    if mv > 0:
+                        pygame.mixer.music.set_volume(mv - 0.1)
                 elif event.key == pygame.K_F3:
-                    pygame.mixer.music.set_volume(1)
+                    mv = pygame.mixer.music.get_volume()
+                    if mv < 1:
+                        pygame.mixer.music.set_volume(mv + 0.1)
                 elif GAMEMODE == 0 and event.key == pygame.K_UP:
                     total += 5
                 elif GAMEMODE == 0 and event.key == pygame.K_DOWN and total > 24:
