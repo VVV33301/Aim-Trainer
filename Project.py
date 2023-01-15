@@ -37,7 +37,7 @@ def to_coef(*n):  # Resizes to look the same on different screens
     return int(n[0] * coef)
 
 
-def go_start():
+def go_start():  # Starts a game
     global GAMEMODE, tm
     GAMEMODE = 12
     tm = FPS * 3
@@ -80,7 +80,7 @@ def go_info():  # Open an information window
     GAMEMODE = 3
 
 
-def to_hard():
+def to_hard():  # Start hard mode
     global total, objects
     total = 1000
     objects = 7
@@ -99,7 +99,7 @@ def pause():  # Pause the game
         pygame.mixer.music.pause()
 
 
-def random_site():
+def random_site():  # For advertising
     pygame.mixer.music.set_volume(0)
     pygame.display.iconify()
     openweb(choice(['https://ya.ru', 'https://google.com', 'https://ya.ru', 'https://dzen.ru', 'https://ya.ru',
@@ -429,10 +429,11 @@ if __name__ == '__main__':  # Run a game
                           hover_color=pygame.Color(112, 20, 112))
     sprite_group_0.add(info_btn)
 
-    info_btn = TextButton('Easy?', to_coef(100), to_hard, (to_coef(650), Y - to_coef(100)), to_coef(250, 150),
+    # Start game in hard mode
+    hard_btn = TextButton('Easy?', to_coef(100), to_hard, (to_coef(650), Y - to_coef(100)), to_coef(250, 150),
                           pygame.Color(220, 120, 180), pygame.Color(127, 0, 255), pygame.Color('red'),
                           hover_color=pygame.Color('red'))
-    sprite_group_0.add(info_btn)
+    sprite_group_0.add(hard_btn)
 
     # Advertising
     ad_btn = ImageButton('Yandex_logo_2021_Russian.png', random_site, (to_coef(250), Y - to_coef(100)),
@@ -501,7 +502,7 @@ if __name__ == '__main__':  # Run a game
                 GAMEMODE = 11
                 pygame.mixer.music.play(-1)
             tm += 1
-        elif GAMEMODE == 12:
+        elif GAMEMODE == 12:  # Start a game
             screen.fill(pygame.Color('black'))
             text1t = font.render(str(tm // FPS + 1), False, s_color)
             screen.blit(text1t, to_center(*text1t.get_size()))
@@ -562,7 +563,7 @@ if __name__ == '__main__':  # Run a game
             sprite_group_info.update()
             screen.fill(pygame.Color(25, 25, 85))
             sprite_group_info.draw(screen)
-        else:
+        else:  # For emergency exit
             exit_game()
 
         cursor.update(screen, *pygame.mouse.get_pos())  # Update a cursor
