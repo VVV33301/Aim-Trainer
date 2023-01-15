@@ -1,22 +1,18 @@
-from random import randint
+from random import randint, choice
 from os import path
 import pygame
 from webbrowser import open as openweb
-from sys import exit as exitt
+from sys import exit as exit_game
 # Importing a libraries
 
-pygame.mixer.pre_init(44100, -16, 1, 512)  # Initialization a mixer
+pygame.mixer.pre_init()  # Initialization a mixer
 pygame.init()  # Initialization a pygame
-
-
-def terminate():  # Exit
-    exitt()
 
 
 def load_image(name, colorkey=None):  # Load images to pygame
     image = pygame.image.load(path.join('data', name))
     if not image:
-        quit()
+        image = pygame.surface.Surface((200, 200), pygame.SRCALPHA)
     if colorkey is not None:
         image = image.convert()
         if colorkey == -1:
@@ -41,6 +37,12 @@ def to_coef(*n):  # Resizes to look the same on different screens
     return int(n[0] * coef)
 
 
+def go_start():
+    global GAMEMODE, tm
+    GAMEMODE = 12
+    tm = FPS * 3
+
+
 def start_game():  # Starting a game process
     global GAMEMODE, s, tb, score1, sprite_group_game, tm
     sprite_group_game = pygame.sprite.Group()
@@ -51,7 +53,6 @@ def start_game():  # Starting a game process
     for _ in range(objects):
         a = Target(to_coef(80))
         sprite_group_game.add(a)
-    tm = 0
     pygame.mouse.set_pos(to_center(1, 1))
     pygame.mixer.music.pause()
 
@@ -74,9 +75,16 @@ def go_help():  # Open a help window
     GAMEMODE = 2
 
 
-def go_about():  # Open an information window
+def go_info():  # Open an information window
     global GAMEMODE
     GAMEMODE = 3
+
+
+def to_hard():
+    global total, objects
+    total = 1000
+    objects = 7
+    go_start()
 
 
 def pause():  # Pause the game
@@ -91,7 +99,15 @@ def pause():  # Pause the game
         pygame.mixer.music.pause()
 
 
-def objects_count(n):  # Change a objects in game
+def random_site():
+    pygame.mixer.music.set_volume(0)
+    pygame.display.iconify()
+    openweb(choice(['https://ya.ru', 'https://google.com', 'https://ya.ru', 'https://dzen.ru', 'https://ya.ru',
+                    'https://store.steampowered.com/app/730', 'https://ya.ru',
+                    'https://www.youtube.com/watch?v=dQw4w9WgXcQ']))
+
+
+def objects_count(n):  # Change an objects in game
     global objects
     objects = n
     for oc in range(1, 6):
@@ -263,9 +279,8 @@ class Target(pygame.sprite.Sprite):
         self.size = size
         sz = size * 2
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface((sz, sz), pygame.SRCALPHA)
+        self.image = pygame.transform.scale(load_image('target.png'), (sz, sz))
         self.image.convert_alpha()
-        pygame.draw.circle(self.image, pygame.Color('white'), (size, size), size)
         self.rect = self.image.get_rect()
         self.x, self.y = create_tb(sz)
         self.rect.center = (self.x, self.y)
@@ -289,7 +304,7 @@ class Target(pygame.sprite.Sprite):
 if __name__ == '__main__':  # Run a game
     FPS = 60  # Fps
     screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)  # Window of game
-    pygame.display.set_caption('Aim_trainer')  # Caption of window
+    pygame.display.set_caption('Aim trainer')  # Caption of window
     pygame.display.set_icon(load_image('LOGO.png'))  # Icon of window
     X, Y = screen.get_size()  # Size of window
     GAMEMODE = 0  # Game window
@@ -298,7 +313,7 @@ if __name__ == '__main__':  # Run a game
 
     cursor = Cursor('cursor.png', to_coef(45, 50))  # Set cursor
 
-    pygame.mixer.music.load('data/main_sound.mp3')  # Background music
+    pygame.mixer.music.load('data/sound.mp3')  # Background music
     pygame.mixer.music.play(-1)
 
     # Groups of sprites
@@ -315,17 +330,17 @@ if __name__ == '__main__':  # Run a game
     tb = []
     s = 0
     score1 = 0
-    font = pygame.font.Font(None, to_coef(150))
+    font = pygame.font.Font(None, to_coef(180))
 
     # Close button
-    close = ImageButton('static.png', go_out, to_coef(100, 100), to_coef(150, 150), hover='active.png')
+    close = ImageButton('exit_static.png', go_out, to_coef(100, 100), to_coef(150, 150), hover='exit_active.png')
     sprite_group_0.add(close)
     sprite_group_1.add(close)
     sprite_group_help.add(close)
     sprite_group_info.add(close)
 
     # Exit button
-    exit_btn = TextButton('Exit', to_coef(250), terminate, (X // 2 - to_coef(300), Y // 2), to_coef(550, 200),
+    exit_btn = TextButton('Exit', to_coef(250), exit_game, (X // 2 - to_coef(300), Y // 2), to_coef(550, 200),
                           pygame.Color('white'), pygame.Color(255, 151, 61), pygame.Color(255, 223, 51),
                           pygame.Color('red'), pygame.Color(45, 45, 45))
     sprite_group_exit.add(exit_btn)
@@ -353,7 +368,7 @@ if __name__ == '__main__':  # Run a game
     ocl[2].change('#')
 
     # Start button
-    start_btn = TextButton('START', to_coef(235), start_game, (X // 2, Y // 2 + 100), to_coef(600, 240),
+    start_btn = TextButton('START', to_coef(235), go_start, (X // 2, Y // 2 + 100), to_coef(600, 240),
                            back_color=pygame.Color(255, 223, 51), border_color=pygame.Color('red'),
                            hover_color=pygame.Color(255, 223, 51), hover_back_color=pygame.Color('grey'))
     sprite_group_0.add(start_btn)
@@ -365,6 +380,8 @@ if __name__ == '__main__':  # Run a game
     surf_help.fill(pygame.Color(50, 50, 111))
     pygame.draw.rect(surf_help, pygame.Color('red'), [(0, 0), shs], 5)
     y_res = 50
+
+    # Information window
     with open('data/help') as help_file:
         for ln in help_file.read().split('\n'):
             txh = fonth.render(ln, True, (255, 255, 255))
@@ -374,8 +391,6 @@ if __name__ == '__main__':  # Run a game
     surf_help_sprite.image = surf_help
     surf_help_sprite.rect = to_center(*shs)
     sprite_group_help.add(surf_help_sprite)
-
-    # Information window
     surf_info = pygame.surface.Surface(shs)
     surf_info.fill(pygame.Color(50, 50, 111))
     pygame.draw.rect(surf_info, pygame.Color('red'), [(0, 0), shs], 5)
@@ -403,32 +418,37 @@ if __name__ == '__main__':  # Run a game
     sprite_group_info.add(menu_btn)
 
     # Open a help window
-    help_btn = TextButton('Help', to_coef(120), go_help, (X - to_coef(200), Y - to_coef(100)), to_coef(350, 150),
+    help_btn = TextButton('Help', to_coef(150), go_help, (X - to_coef(200), Y - to_coef(100)), to_coef(350, 150),
                           pygame.Color('purple'), border_color=pygame.Color('red'),
                           hover_color=pygame.Color(112, 20, 112))
     sprite_group_0.add(help_btn)
 
-    # Open a information window
-    info_btn = TextButton('Info', to_coef(120), go_about, (X - to_coef(600), Y - to_coef(100)), to_coef(350, 150),
+    # Open an information window
+    info_btn = TextButton('Info', to_coef(150), go_info, (X - to_coef(600), Y - to_coef(100)), to_coef(350, 150),
                           pygame.Color('purple'), border_color=pygame.Color('red'),
                           hover_color=pygame.Color(112, 20, 112))
     sprite_group_0.add(info_btn)
 
+    info_btn = TextButton('Easy?', to_coef(100), to_hard, (to_coef(650), Y - to_coef(100)), to_coef(250, 150),
+                          pygame.Color(220, 120, 180), pygame.Color(127, 0, 255), pygame.Color('red'),
+                          hover_color=pygame.Color('red'))
+    sprite_group_0.add(info_btn)
+
     # Advertising
-    ad_btn = ImageButton('Yandex_logo_2021_Russian.png', lambda: openweb('https://ya.ru'),
-                         (to_coef(250), Y - to_coef(100)), to_coef(450, 150), pygame.Color('red'))
+    ad_btn = ImageButton('Yandex_logo_2021_Russian.png', random_site, (to_coef(250), Y - to_coef(100)),
+                         to_coef(450, 150), pygame.Color('red'))
     sprite_group_0.add(ad_btn)
 
     # Game settings
     clock = pygame.time.Clock()
     tm = 0
-    s_color = pygame.Color(0, 0, 0)
+    s_color = pygame.Color(255, 0, 0)
 
     while True:  # Game process
         clock.tick(FPS)  # Next frame timer
         for event in pygame.event.get():  # Events
             if event.type == pygame.QUIT:  # Exit
-                terminate()
+                exit_game()
             if event.type == pygame.KEYDOWN:  # Press a button in keyboard
                 if event.key == pygame.K_ESCAPE:
                     GAMEMODE = -1
@@ -442,6 +462,11 @@ if __name__ == '__main__':  # Run a game
                     mv = pygame.mixer.music.get_volume()
                     if mv < 1:
                         pygame.mixer.music.set_volume(mv + 0.1)
+                elif event.key == pygame.K_F4:
+                    pygame.mixer.music.set_volume(0)
+                elif event.key == pygame.K_SPACE:
+                    if GAMEMODE == 1 or GAMEMODE == 10:
+                        pause()
                 elif GAMEMODE == 0 and event.key == pygame.K_UP:
                     total += 5
                 elif GAMEMODE == 0 and event.key == pygame.K_DOWN and total > 24:
@@ -449,7 +474,7 @@ if __name__ == '__main__':  # Run a game
                 elif GAMEMODE == 11:
                     go_menu()
             if event.type == pygame.MOUSEBUTTONDOWN:  # Press a button in mouse
-                if GAMEMODE == 1 and event.pos[1] > coef * 200:
+                if GAMEMODE == 1 and event.pos[1] > to_coef(200):
                     s += 1
                 elif GAMEMODE == 11:
                     go_menu()
@@ -469,13 +494,20 @@ if __name__ == '__main__':  # Run a game
             text1 = font.render(str(score1), True, s_color)
             text1t = font.render(str(round(tm / FPS, 1)), True, (s_color.b, s_color.r, s_color.g))
             screen.blit(text1, to_coef(500, 50))
-            screen.blit(text1t, to_coef(650, 50))
+            screen.blit(text1t, to_coef(750, 50))
             sprite_group_game.draw(screen)
             sprite_group_1.draw(screen)
             if score1 == total:
                 GAMEMODE = 11
                 pygame.mixer.music.play(-1)
             tm += 1
+        elif GAMEMODE == 12:
+            screen.fill(pygame.Color('black'))
+            text1t = font.render(str(tm // FPS + 1), False, s_color)
+            screen.blit(text1t, to_center(*text1t.get_size()))
+            tm -= 1
+            if tm <= 0:
+                start_game()
         elif GAMEMODE == 10:  # Pause
             sprite_group_1.update()
             screen.fill(pygame.Color('black'))
@@ -531,7 +563,7 @@ if __name__ == '__main__':  # Run a game
             screen.fill(pygame.Color(25, 25, 85))
             sprite_group_info.draw(screen)
         else:
-            terminate()
+            exit_game()
 
         cursor.update(screen, *pygame.mouse.get_pos())  # Update a cursor
         pygame.display.flip()  # Go to next frame
