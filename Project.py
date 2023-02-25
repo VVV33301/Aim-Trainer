@@ -1,5 +1,6 @@
+import sys
 from random import randint, choice
-from os import path
+from os import path, listdir, startfile
 import pygame
 from webbrowser import open as openweb
 from sys import exit as exit_game
@@ -9,8 +10,11 @@ pygame.mixer.pre_init()  # Initialization a mixer
 pygame.init()  # Initialization a pygame
 
 
-def load_image(name, colorkey=None):  # Load images to pygame
-    image = pygame.image.load(path.join('data', name))
+def load_image(name, colorkey=None, addpath=None):  # Load images to pygame
+    if addpath:
+        image = pygame.image.load(path.join(f'data/{addpath}', name))
+    else:
+        image = pygame.image.load(path.join(f'data', name))
     if not image:
         image = pygame.surface.Surface((200, 200), pygame.SRCALPHA)
     if colorkey is not None:
@@ -44,14 +48,15 @@ def go_start():  # Starts a game
 
 
 def start_game():  # Starting a game process
-    global GAMEMODE, s, tb, score1, sprite_group_game, tm
+    global GAMEMODE, s, tb, score1, sprite_group_game, tm, img
     sprite_group_game = pygame.sprite.Group()
     GAMEMODE = 1
     tb = []
     s = 0
     score1 = 0
+    img = pygame.transform.scale(load_image(list_targets[target], addpath='target'), to_coef(180, 180))
     for _ in range(objects):
-        a = Target(to_coef(80))
+        a = Target(to_coef(90))
         sprite_group_game.add(a)
     pygame.mouse.set_pos(to_center(1, 1))
     pygame.mixer.music.pause()
@@ -105,6 +110,20 @@ def random_site():  # For advertising
     openweb(choice(['https://ya.ru', 'https://google.com', 'https://ya.ru', 'https://dzen.ru', 'https://ya.ru',
                     'https://store.steampowered.com/app/730', 'https://ya.ru',
                     'https://www.youtube.com/watch?v=dQw4w9WgXcQ']))
+
+
+def add_target():  # Add a new target
+    pygame.mixer.music.set_volume(0)
+    pygame.display.iconify()
+    t = sys.argv[0].rsplit('\\', maxsplit=1)[0]
+    startfile(f'{t}/data/target')
+
+
+def target_name():
+    name = list_targets[target].rsplit('.', maxsplit=1)[0]
+    if len(name) > 12:
+        return name[:10] + '...'
+    return name
 
 
 def objects_count(n):  # Change an objects in game
@@ -279,7 +298,7 @@ class Target(pygame.sprite.Sprite):
         self.size = size
         sz = size * 2
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.transform.scale(load_image('target.png'), (sz, sz))
+        self.image = img
         self.image.convert_alpha()
         self.rect = self.image.get_rect()
         self.x, self.y = create_tb(sz)
@@ -310,6 +329,8 @@ if __name__ == '__main__':  # Run a game
     GAMEMODE = 0  # Game window
     is_press = False  # Check is pressed mouse buttons
     coef = X / 2560  # Coefficient of window
+    list_targets = listdir('data/target')
+    target = 0
 
     cursor = Cursor('cursor.png', to_coef(45, 50))  # Set cursor
 
@@ -331,6 +352,9 @@ if __name__ == '__main__':  # Run a game
     s = 0
     score1 = 0
     font = pygame.font.Font(None, to_coef(180))
+    fonttar = pygame.font.Font(None, to_coef(80))
+    img = None
+    curr_target = pygame.transform.scale(load_image(list_targets[target], addpath='target'), to_coef(360, 360))
 
     # Close button
     close = ImageButton('exit_static.png', go_out, to_coef(100, 100), to_coef(150, 150), hover='exit_active.png')
@@ -418,27 +442,34 @@ if __name__ == '__main__':  # Run a game
     sprite_group_info.add(menu_btn)
 
     # Open a help window
-    help_btn = TextButton('Help', to_coef(150), go_help, (X - to_coef(200), Y - to_coef(100)), to_coef(350, 150),
+    help_btn = TextButton('Help', to_coef(150), go_help, (to_coef(200), Y - to_coef(500)), to_coef(350, 150),
                           pygame.Color('purple'), border_color=pygame.Color('red'),
                           hover_color=pygame.Color(112, 20, 112))
     sprite_group_0.add(help_btn)
 
     # Open an information window
-    info_btn = TextButton('Info', to_coef(150), go_info, (X - to_coef(600), Y - to_coef(100)), to_coef(350, 150),
+    info_btn = TextButton('Info', to_coef(150), go_info, (to_coef(200), Y - to_coef(300)), to_coef(350, 150),
                           pygame.Color('purple'), border_color=pygame.Color('red'),
                           hover_color=pygame.Color(112, 20, 112))
     sprite_group_0.add(info_btn)
 
     # Start game in hard mode
-    hard_btn = TextButton('Easy?', to_coef(100), to_hard, (to_coef(650), Y - to_coef(100)), to_coef(250, 150),
+    hard_btn = TextButton('Easy?', to_coef(150), to_hard, (to_coef(200), Y - to_coef(100)), to_coef(350, 150),
                           pygame.Color(220, 120, 180), pygame.Color(127, 0, 255), pygame.Color('red'),
                           hover_color=pygame.Color('red'))
     sprite_group_0.add(hard_btn)
 
     # Advertising
-    ad_btn = ImageButton('Yandex_logo_2021_Russian.png', random_site, (to_coef(250), Y - to_coef(100)),
-                         to_coef(450, 150), pygame.Color('red'))
+    ad_btn = TextButton('Site', to_coef(120), random_site, (X - to_coef(150), to_coef(105)), to_coef(200, 120),
+                        pygame.Color(220, 120, 180), pygame.Color(127, 0, 255), pygame.Color('red'),
+                        hover_color=pygame.Color('red'))
     sprite_group_0.add(ad_btn)
+
+    # Add a new target
+    add_btn = TextButton('Add', to_coef(100), add_target, (X - to_coef(220), Y - to_coef(100)), to_coef(200, 100),
+                         pygame.Color(220, 120, 180), pygame.Color(127, 0, 255), pygame.Color('red'),
+                         hover_color=pygame.Color('red'))
+    sprite_group_0.add(add_btn)
 
     # Game settings
     clock = pygame.time.Clock()
@@ -472,6 +503,14 @@ if __name__ == '__main__':  # Run a game
                     total += 5
                 elif GAMEMODE == 0 and event.key == pygame.K_DOWN and total > 24:
                     total -= 5
+                elif GAMEMODE == 0 and event.key == pygame.K_LEFT:
+                    target = target - 1 if target > 0 else len(list_targets) - 1
+                    curr_target = pygame.transform.scale(load_image(list_targets[target], addpath='target'),
+                                                         to_coef(360, 360))
+                elif GAMEMODE == 0 and event.key == pygame.K_RIGHT:
+                    target = target + 1 if target < len(list_targets) - 1 else 0
+                    curr_target = pygame.transform.scale(load_image(list_targets[target], addpath='target'),
+                                                         to_coef(360, 360))
                 elif GAMEMODE == 11:
                     go_menu()
             if event.type == pygame.MOUSEBUTTONDOWN:  # Press a button in mouse
@@ -546,10 +585,15 @@ if __name__ == '__main__':  # Run a game
             screen.blit(textc, (to_center(textc.get_size()[0]), 200))
             screen.blit(text0, to_center(*text0.get_size()))
         elif GAMEMODE == 0:  # Menu
+            list_targets = listdir('data/target')
             sprite_group_0.update()
             screen.fill(pygame.Color(25, 25, 85))
             texti = font.render(f'Objects: {total}', True, (255, 127, 0))
             screen.blit(texti, (to_center(texti.get_size()[0], texti.get_size()[1] + to_coef(600))))
+            pygame.draw.rect(screen, (255, 0, 0), [(X - to_coef(400), Y - to_coef(600)), to_coef(360, 360)], 1)
+            screen.blit(curr_target, (X - to_coef(400), Y - to_coef(600)))
+            textt = fonttar.render(target_name(), True, (127, 127, 127))
+            screen.blit(textt, (X - to_coef(400) + to_coef(180 - textt.get_size()[0] // 2), Y - to_coef(240)))
             sprite_group_0.draw(screen)
         elif GAMEMODE == -1:  # Exit
             sprite_group_exit.update()
