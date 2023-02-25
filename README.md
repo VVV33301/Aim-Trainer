@@ -10,7 +10,7 @@ Created by _Vladimir Varenik_ and _Dilyara Ismagilova_
 There is an advertisement in the game, when clicked, the source opens with a probability of 50%
 
 ## Screenshots
-![Menu](https://user-images.githubusercontent.com/117539159/212554864-03bca72e-f676-44a5-807c-10195c1bc58c.png)
+![Menu](https://user-images.githubusercontent.com/117539159/221351484-10b83ec0-6f78-4de7-b377-fc075b1e7d3c.png)
 ![Game](https://user-images.githubusercontent.com/117539159/212554964-37c44631-ed81-4fe4-a7bf-0ec162e83791.png)
 
 # Project
