@@ -115,7 +115,7 @@ def random_site():  # For advertising
 def add_target():  # Add a new target
     pygame.mixer.music.set_volume(0)
     pygame.display.iconify()
-    t = sys.argv[0].rsplit('\\', maxsplit=1)[0]
+    t = sys.argv[0].rsplit('/', maxsplit=1)[0]
     startfile(f'{t}/data/target')
 
 
@@ -422,7 +422,7 @@ if __name__ == '__main__':  # Run a game
     txa = fonth.render('AIM TRAINER', True, (255, 255, 255))
     surf_info.blit(txa, (to_center(txa.get_size()[0]) - to_coef(200), to_coef(300)))
     fontv = pygame.font.Font(None, to_coef(100))
-    txav = fontv.render('Version: 0.3.0', True, (255, 255, 255))
+    txav = fontv.render('Version: 0.2.0', True, (255, 255, 255))
     surf_info.blit(txav, to_coef(50, 400))
     txal = fontv.render('License: GNU LESSER GENERAL PUBLIC LICENSE', True, (255, 255, 255))
     surf_info.blit(txal, to_coef(50, 500))
@@ -593,7 +593,7 @@ if __name__ == '__main__':  # Run a game
             pygame.draw.rect(screen, (255, 0, 0), [(X - to_coef(400), Y - to_coef(600)), to_coef(360, 360)], 1)
             screen.blit(curr_target, (X - to_coef(400), Y - to_coef(600)))
             textt = fonttar.render(target_name(), True, (127, 127, 127))
-            screen.blit(textt, (X - to_coef(400) + to_coef(180 - textt.get_size()[0] // 2), Y - to_coef(240)))
+            screen.blit(textt, (X - to_coef(400) + to_coef(180) - textt.get_size()[0] // 2, Y - to_coef(240)))
             sprite_group_0.draw(screen)
         elif GAMEMODE == -1:  # Exit
             sprite_group_exit.update()
