@@ -422,7 +422,7 @@ if __name__ == '__main__':  # Run a game
     txa = fonth.render('AIM TRAINER', True, (255, 255, 255))
     surf_info.blit(txa, (to_center(txa.get_size()[0]) - to_coef(200), to_coef(300)))
     fontv = pygame.font.Font(None, to_coef(100))
-    txav = fontv.render('Version: 0.2.0', True, (255, 255, 255))
+    txav = fontv.render('Version: 0.3.0', True, (255, 255, 255))
     surf_info.blit(txav, to_coef(50, 400))
     txal = fontv.render('License: GNU LESSER GENERAL PUBLIC LICENSE', True, (255, 255, 255))
     surf_info.blit(txal, to_coef(50, 500))
